@@ -1,11 +1,11 @@
 [package]
 name = "bgfastnet_lib"
-version = "3.1.0"
+version = "0.0.1"
 edition = "2021"
 description = "A Rust library for decoding the FastNet protocol used by B&G Hydra / H2000 instruments"
 license = "MIT"
-repository = "https://github.com/ghotihook/fastnet"
-documentation = "https://docs.rs/fastnet"
+repository = "https://github.com/ghotihook/rust-bgfastnet-lib"
+documentation = "https://docs.rs/bgfastnet_lib"
 
 [dependencies]
 log = "0.4"
