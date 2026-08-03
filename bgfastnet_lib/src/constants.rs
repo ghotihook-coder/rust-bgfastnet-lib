@@ -1,0 +1,331 @@
+use std::collections::HashMap;
+
+/// Address lookup table for FastNet protocol
+/// Maps address codes to human-readable device names
+pub const ADDRESS_LOOKUP: &[(&str, u8)] = &[
+    ("All 20/20s", 0xFA),
+    ("All Halcyon FFDs", 0xFB),
+    ("All Pilot FFDs", 0xFC),
+    ("All Processor Nodes", 0xFD),
+    ("All FFDs", 0xFE),
+    ("Entire System", 0xFF),
+    ("Normal CPU (Depth Board in H2000)", 0x01),
+    ("Normal CPU (Wind Board in H2000)", 0x05),
+    ("Performance Processor", 0x09),
+    ("Expansion Unit", 0x0D),
+    ("Expansion Unit", 0x0E),
+    ("Expansion Unit", 0x0F),
+    ("Halcyon 2000 Compass (Directly Connected to FastNet Bus)", 0x10),
+    ("Halcyon Gyro-Stabilised Compass (via ACP)", 0x11),
+    ("Halcyon Gyro-Stabilised Compass (via Pilot ACP)", 0x12),
+    ("FFD (20)", 0x20),
+    ("FFD (21)", 0x21),
+    ("FFD (22)", 0x22),
+    ("FFD (23)", 0x23),
+    ("FFD (24)", 0x24),
+    ("FFD (25)", 0x25),
+    ("FFD (26)", 0x26),
+    ("FFD (27)", 0x27),
+    ("FFD (28)", 0x28),
+    ("FFD (29)", 0x29),
+    ("FFD (2A)", 0x2A),
+    ("FFD (2B)", 0x2B),
+    ("FFD (2C)", 0x2C),
+    ("FFD (2D)", 0x2D),
+    ("FFD (2E)", 0x2E),
+    ("FFD (2F)", 0x2F),
+    ("Halcyon FFD (30)", 0x30),
+    ("Halcyon FFD (31)", 0x31),
+    ("Halcyon FFD (32)", 0x32),
+    ("Halcyon FFD (33)", 0x33),
+    ("Halcyon FFD (34)", 0x34),
+    ("Halcyon FFD (35)", 0x35),
+    ("Halcyon FFD (36)", 0x36),
+    ("Halcyon FFD (37)", 0x37),
+    ("Halcyon FFD (38)", 0x38),
+    ("Halcyon FFD (39)", 0x39),
+    ("Halcyon FFD (3A)", 0x3A),
+    ("Halcyon FFD (3B)", 0x3B),
+    ("Halcyon FFD (3C)", 0x3C),
+    ("Halcyon FFD (3D)", 0x3D),
+    ("Halcyon FFD (3E)", 0x3E),
+    ("Halcyon FFD (3F)", 0x3F),
+    ("Display 20/20 (40)", 0x40),
+    ("Display 20/20 (41)", 0x41),
+    ("Display 20/20 (42)", 0x42),
+    ("Display 20/20 (43)", 0x43),
+    ("Display 20/20 (44)", 0x44),
+    ("Display 20/20 (45)", 0x45),
+    ("Display 20/20 (46)", 0x46),
+    ("Display 20/20 (47)", 0x47),
+    ("Display 20/20 (48)", 0x48),
+    ("Display 20/20 (49)", 0x49),
+    ("Display 20/20 (4A)", 0x4A),
+    ("Display 20/20 (4B)", 0x4B),
+    ("Display 20/20 (4C)", 0x4C),
+    ("Display 20/20 (4D)", 0x4D),
+    ("Display 20/20 (4E)", 0x4E),
+    ("Display 20/20 (4F)", 0x4F),
+    ("Pilot FFD (50)", 0x50),
+    ("Pilot FFD (51)", 0x51),
+    ("Pilot FFD (52)", 0x52),
+    ("Pilot FFD (53)", 0x53),
+    ("Pilot FFD (54)", 0x54),
+    ("Pilot FFD (55)", 0x55),
+    ("Pilot FFD (56)", 0x56),
+    ("Pilot FFD (57)", 0x57),
+    ("Pilot FFD (58)", 0x58),
+    ("Pilot FFD (59)", 0x59),
+    ("Pilot FFD (5A)", 0x5A),
+    ("Pilot FFD (5B)", 0x5B),
+    ("Pilot FFD (5C)", 0x5C),
+    ("Pilot FFD (5D)", 0x5D),
+    ("Pilot FFD (5E)", 0x5E),
+    ("Pilot FFD (5F)", 0x5F),
+    ("External Compass (NMEA FFD 60)", 0x60),
+    ("External Compass (NMEA FFD 61)", 0x61),
+    ("External Compass (NMEA FFD 62)", 0x62),
+    ("External Compass (NMEA FFD 63)", 0x63),
+    ("External Compass (NMEA FFD 64)", 0x64),
+    ("External Compass (NMEA FFD 65)", 0x65),
+    ("External Compass (NMEA FFD 66)", 0x66),
+    ("External Compass (NMEA FFD 67)", 0x67),
+    ("External Compass (NMEA FFD 68)", 0x68),
+    ("External Compass (NMEA FFD 69)", 0x69),
+    ("External Compass (NMEA FFD 6A)", 0x6A),
+    ("External Compass (NMEA FFD 6B)", 0x6B),
+    ("External Compass (NMEA FFD 6C)", 0x6C),
+    ("External Compass (NMEA FFD 6D)", 0x6D),
+    ("External Compass (NMEA FFD 6E)", 0x6E),
+    ("External Compass (NMEA FFD 6F)", 0x6F),
+    ("Load cell amplifier (70)", 0x70),
+    ("Load cell amplifier (71)", 0x71),
+    ("Load cell amplifier (72)", 0x72),
+    ("Load cell amplifier (73)", 0x73),
+    ("Load cell amplifier (74)", 0x74),
+    ("Load cell amplifier (75)", 0x75),
+    ("Load cell amplifier (76)", 0x76),
+    ("Load cell amplifier (77)", 0x77),
+    ("Load cell amplifier (78)", 0x78),
+    ("Load cell amplifier (79)", 0x79),
+    ("Load cell amplifier (7A)", 0x7A),
+    ("Load cell amplifier (7B)", 0x7B),
+    ("Load cell amplifier (7C)", 0x7C),
+    ("Load cell amplifier (7D)", 0x7D),
+    ("Load cell amplifier (7E)", 0x7E),
+    ("Load cell amplifier (7F)", 0x7F),
+    ("Tank level sensor (80)", 0x80),
+    ("Tank level sensor (81)", 0x81),
+    ("Tank level sensor (82)", 0x82),
+    ("Tank level sensor (83)", 0x83),
+    ("Tank level sensor (84)", 0x84),
+    ("Tank level sensor (85)", 0x85),
+    ("Tank level sensor (86)", 0x86),
+    ("Tank level sensor (87)", 0x87),
+    ("Tank level sensor (88)", 0x88),
+    ("Tank level sensor (89)", 0x89),
+    ("Tank level sensor (8A)", 0x8A),
+    ("Tank level sensor (8B)", 0x8B),
+    ("Tank level sensor (8C)", 0x8C),
+    ("Tank level sensor (8D)", 0x8D),
+    ("Tank level sensor (8E)", 0x8E),
+    ("Tank level sensor (8F)", 0x8F),
+];
+
+/// Reverse lookup: u8 -> &str
+pub fn address_lookup_reverse() -> HashMap<u8, &'static str> {
+    ADDRESS_LOOKUP.iter().map(|(s, v)| (*v, *s)).collect()
+}
+
+/// Commands to ignore
+pub const IGNORED_COMMANDS: &[u8] = &[0x0C];
+
+/// Backlight levels
+pub const BACKLIGHT_LEVELS: &[(u8, &str)] = &[(0x00, "Off"), (0x01, "Low"), (0x02, "Medium"), (0x04, "High")];
+
+/// Command lookup table
+pub const COMMAND_LOOKUP: &[(&str, u8)] = &[
+    ("Broadcast", 0x01),
+    ("Keep Alive", 0x0C),
+    ("LatLon", 0x03),
+    ("Light Intensity", 0xC9),
+];
+
+/// Reverse command lookup
+pub fn command_lookup_reverse() -> HashMap<u8, &'static str> {
+    COMMAND_LOOKUP.iter().map(|(s, v)| (*v, *s)).collect()
+}
+
+/// Channel lookup table
+pub const CHANNEL_LOOKUP: &[(&str, u8)] = &[
+    ("Node Reset", 0x00),
+    ("Rudder Angle", 0x0B),
+    ("Linear 5", 0x0C),
+    ("Linear 6", 0x0D),
+    ("Linear 7", 0x0E),
+    ("Linear 8", 0x0F),
+    ("Linear 9", 0x10),
+    ("Linear 10", 0x11),
+    ("Linear 11", 0x12),
+    ("Linear 12", 0x13),
+    ("Linear 13", 0x14),
+    ("Linear 14", 0x15),
+    ("Linear 15", 0x16),
+    ("Linear 16", 0x17),
+    ("Air Temperature (°F)", 0x1C),
+    ("Air Temperature (°C)", 0x1D),
+    ("Sea Temperature (°F)", 0x1E),
+    ("Sea Temperature (°C)", 0x1F),
+    ("Head/Lift Trend", 0x27),
+    ("Off Course", 0x29),
+    ("Tacking Performance", 0x32),
+    ("Reaching Performance", 0x33),
+    ("Heel Angle", 0x34),
+    ("Optimum Wind Angle", 0x35),
+    ("Depth Sounder Receiver Gain", 0x36),
+    ("Depth Sounder Noise", 0x37),
+    ("Linear 1", 0x38),
+    ("Linear 2", 0x39),
+    ("Linear 3", 0x3A),
+    ("Linear 4", 0x3B),
+    ("Rate Motion", 0x3C),
+    ("Boatspeed (Knots)", 0x41),
+    ("Boatspeed (Raw)", 0x42),
+    ("Yaw rate", 0x44),
+    ("Autopilot Speed Fixed (Knots)", 0x46),
+    ("Heading", 0x49),
+    ("Heading (Raw)", 0x4A),
+    ("Apparent Wind Speed (Knots)", 0x4D),
+    ("Apparent Wind Speed (Raw)", 0x4E),
+    ("Apparent Wind Speed (m/s)", 0x4F),
+    ("from NMEA", 0x50),
+    ("Apparent Wind Angle", 0x51),
+    ("Apparent Wind Angle (Raw)", 0x52),
+    ("Target TWA", 0x53),
+    ("True Wind Speed (Knots)", 0x55),
+    ("True Wind Speed (m/s)", 0x56),
+    ("Measured Wind Speed (Knots)", 0x57),
+    ("True Wind Angle", 0x59),
+    ("Measured Wind Angle Deg", 0x5A),
+    ("Average Speed (Knots)", 0x64),
+    ("Average Speed (raw)", 0x65),
+    ("Request for Data", 0x68),
+    ("Course (HDG + Leeway)", 0x69),
+    ("Act for Data", 0x6A),
+    ("True Wind Direction", 0x6D),
+    ("Next Leg Apparent Wind Angle", 0x6F),
+    ("Next Leg Target Boat Speed", 0x70),
+    ("Next Leg Apparent Wind Speed", 0x71),
+    ("Timer", 0x75),
+    ("Polar Performance", 0x7C),
+    ("Target Boatspeed", 0x7D),
+    ("Velocity Made Good (Knots)", 0x7F),
+    ("Dead Reckoning Distance", 0x81),
+    ("Leeway", 0x82),
+    ("Tidal Drift", 0x83),
+    ("Tidal Set", 0x84),
+    ("Upwash", 0x85),
+    ("Barometric Pressure Trend", 0x86),
+    ("Barometric Pressure", 0x87),
+    ("Battery Volts", 0x8D),
+    ("Heading on Next Tack", 0x9A),
+    ("Fore/Aft Trim", 0x9B),
+    ("Mast Angle", 0x9C),
+    ("Wind Angle to the Mast", 0x9D),
+    ("Pitch Rate (Motion)", 0x9E),
+    ("Autopilot Compass Target", 0xA6),
+    ("Autopilot Off Course", 0xAF),
+    ("Autopilot Mode", 0xB5),
+    ("Depth (Meters)", 0xC1),
+    ("Depth (Feet)", 0xC2),
+    ("Depth (Fathoms)", 0xC3),
+    ("Stored Log (NM)", 0xCD),
+    ("Trip Log (NM)", 0xCF),
+    ("Dead Reckoning Course", 0xD3),
+    ("Local Time", 0xDC),
+    ("UTC Time", 0xDD),
+    ("Bearing Wpt. to Wpt. (True)", 0xE0),
+    ("Bearing Wpt. to Wpt. (Mag)", 0xE1),
+    ("Layline Distance", 0xE2),
+    ("Bearing to Waypoint (Rhumb True)", 0xE3),
+    ("Bearing to Waypoint (Rhumb Mag)", 0xE4),
+    ("Bearing to Waypoint (G.C. True)", 0xE5),
+    ("Bearing to Waypoint (G.C. Mag)", 0xE6),
+    ("Distance to Waypoint (Rhumb)", 0xE7),
+    ("Distance to Waypoint (G.C.)", 0xE8),
+    ("Course Over Ground (True)", 0xE9),
+    ("Course Over Ground (Mag)", 0xEA),
+    ("Speed Over Ground", 0xEB),
+    ("VMG to Waypoint (VMC)", 0xEC),
+    ("Time to Waypoint", 0xED),
+    ("Cross Track Error", 0xEE),
+    ("Remote 0", 0xEF),
+    ("Remote 1", 0xF0),
+    ("Remote 2", 0xF1),
+    ("Remote 3", 0xF2),
+    ("Remote 4", 0xF3),
+    ("Remote 5", 0xF4),
+    ("Remote 6", 0xF5),
+    ("Remote 7", 0xF6),
+    ("Remote 8", 0xF7),
+    ("Remote 9", 0xF8),
+    ("Course to Sail", 0xF9),
+    ("Next Waypoint Distance", 0xFA),
+    ("Time to Layline", 0xFB),
+];
+
+/// Reverse channel lookup
+pub fn channel_lookup_reverse() -> HashMap<u8, &'static str> {
+    CHANNEL_LOOKUP.iter().map(|(s, v)| (*v, *s)).collect()
+}
+
+/// Segment A lookup for layout symbols
+pub const SEGMENT_A: &[(u8, &'static str)] = &[
+    (0x66, "°M"),
+    (0x28, "[data]="), (0xa8, "=[data]"),
+    (0x20, "[data]-"), (0xa0, "-[data]"),
+    (0x8c, "=[data]"), (0x0c, "[data]="),
+    (0xf3, "H[data]"), (0x73, "[data]H"),
+    (0x00, ""), (0x80, ""),
+    (0xbb, "d[data]"), (0x99, "u[data]"),
+    (0x58, "[data]L"), (0xd8, "L[data]"),
+    (0x32, "[data]z"), (0x61, "z[data]"),
+    (0x5c, "[data]°C"), (0x74, "[data]°F"),
+    (0x01, "TBC"), (0x54, "TBC"),
+];
+
+/// Reverse segment A lookup
+pub fn segment_a_reverse() -> HashMap<u8, &'static str> {
+    SEGMENT_A.iter().map(|(k, v)| (*k, *v)).collect()
+}
+
+/// Segment B lookup for 7-segment display
+pub const SEGMENT_B: &[(u8, &str)] = &[
+    (0xBE, "O"), (0xE8, "F"), (0x62, "n"),
+    (0x72, "o"), (0x40, "-"), (0x00, " "),
+    (0x06, "1"), (0xFA, "6"), (0x0E, "7"), (0xFE, "8"),
+    (0xDA, "2"), (0xDE, "3"), (0xC6, "4"),
+    (0xB8, "C"),
+];
+
+/// Autopilot mode by low byte
+pub const AUTOPILOT_MODE_BY_LOW: &[(u8, &str)] = &[
+    (0x01, "Compass"), (0x02, "Power"), (0x04, "Wind"), (0x13, "NMEA WP"),
+];
+
+/// Reverse autopilot mode lookup
+pub fn autopilot_mode_by_low_reverse() -> HashMap<u8, &'static str> {
+    AUTOPILOT_MODE_BY_LOW.iter().map(|(k, v)| (*k, *v)).collect()
+}
+
+/// Format size map: format_byte & 0x0F -> data length
+pub const FORMAT_SIZE_MAP: &[(u8, usize)] = &[
+    (0x00, 4), (0x01, 2), (0x02, 2), (0x03, 2),
+    (0x04, 4), (0x05, 4), (0x06, 4), (0x07, 4),
+    (0x08, 2), (0x0A, 4),
+];
+
+/// Reverse format size map
+pub fn format_size_map_reverse() -> HashMap<u8, usize> {
+    FORMAT_SIZE_MAP.iter().map(|(k, v)| (*k, *v)).collect()
+}
