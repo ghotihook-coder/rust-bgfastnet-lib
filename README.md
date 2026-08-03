@@ -4,6 +4,8 @@ A Rust library for decoding the FastNet protocol used by B&G Hydra / H2000 marin
 
 [![Crates.io](https://img.shields.io/crates/v/bgfastnet_lib)](https://crates.io/crates/bgfastnet_lib)
 [![Documentation](https://docs.rs/bgfastnet_lib/badge.svg)](https://docs.rs/bgfastnet_lib)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![GitHub](https://img.shields.io/github/license/ghotihook/rust-bgfastnet-lib)](https://github.com/ghotihook/rust-bgfastnet-lib)
 
 ## Overview
 
