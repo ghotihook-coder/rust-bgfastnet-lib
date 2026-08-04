@@ -52,14 +52,14 @@ pub struct DecodedFrame {
 }
 
 /// Decodes a complete FastNet frame from raw bytes
-/// 
+///
 /// # Arguments
 /// * `frame` - Raw frame bytes including header and checksum
-/// 
+///
 /// # Returns
 /// * `Ok(DecodedFrame)` - Successfully decoded frame
 /// * `Err(String)` - Error message if decoding fails
-/// 
+///
 /// # Frame format
 /// - Byte 0: To address
 /// - Byte 1: From address  
@@ -139,10 +139,7 @@ pub fn decode_frame(frame: &[u8]) -> Result<DecodedFrame, String> {
             .unwrap_or(0);
 
         if index + data_length > body.len() {
-            return Err(format!(
-                "Incomplete data for channel 0x{:02X}",
-                channel_id
-            ));
+            return Err(format!("Incomplete data for channel 0x{:02X}", channel_id));
         }
 
         let data_bytes = &body[index..index + data_length];
@@ -206,12 +203,15 @@ pub fn decode_ascii_frame(frame: &[u8]) -> Result<DecodedFrame, String> {
         values: HashMap::new(),
     };
 
-    decoded_data.values.insert(channel_name, DecodedValue {
-        channel_id: format!("0x{:02X}", channel_id),
-        value: None,
-        display_text: Some(ascii_text),
-        layout: None,
-    });
+    decoded_data.values.insert(
+        channel_name,
+        DecodedValue {
+            channel_id: format!("0x{:02X}", channel_id),
+            value: None,
+            display_text: Some(ascii_text),
+            layout: None,
+        },
+    );
 
     Ok(decoded_data)
 }
@@ -251,7 +251,8 @@ pub fn decode_light_frame(frame: &[u8]) -> Result<DecodedFrame, String> {
         .map(|s| s.to_string())
         .unwrap_or_else(|| format!("Unknown (0x{:02X})", from_address));
 
-    let backlight_levels: HashMap<u8, &str> = crate::constants::BACKLIGHT_LEVELS.iter().cloned().collect();
+    let backlight_levels: HashMap<u8, &str> =
+        crate::constants::BACKLIGHT_LEVELS.iter().cloned().collect();
     let display_text = backlight_levels
         .get(&level)
         .map(|s| s.to_string())
@@ -264,33 +265,42 @@ pub fn decode_light_frame(frame: &[u8]) -> Result<DecodedFrame, String> {
         values: HashMap::new(),
     };
 
-    decoded_data.values.insert("Backlight".to_string(), DecodedValue {
-        channel_id: format!("0x{:02X}", 0xC9),
-        value: Some(level as f64),
-        display_text: Some(display_text),
-        layout: None,
-    });
+    decoded_data.values.insert(
+        "Backlight".to_string(),
+        DecodedValue {
+            channel_id: format!("0x{:02X}", 0xC9),
+            value: Some(level as f64),
+            display_text: Some(display_text),
+            layout: None,
+        },
+    );
 
     Ok(decoded_data)
 }
 
 /// Decodes channel data based on format byte and data bytes
-/// 
+///
 /// # Arguments
 /// * `channel_id` - The channel identifier
 /// * `format_byte` - Format specification byte
 /// * `data_bytes` - Raw data bytes for this channel
-/// 
+///
 /// # Format byte structure
 /// - Bits 7-6: Divisor (0=1, 1=10, 2=100, 3=1000)
 /// - Bits 3-0: Format bits (0x01-0x0A, various data formats)
 pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]) -> DecodedValue {
-    let divisor_map: HashMap<u8, u32> = [(0, 1), (1, 10), (2, 100), (3, 1000)].into_iter().collect();
-    let decimal_places_map: HashMap<u32, u8> = [(1, 0), (10, 1), (100, 2), (1000, 3)].into_iter().collect();
+    let divisor_map: HashMap<u8, u32> =
+        [(0, 1), (1, 10), (2, 100), (3, 1000)].into_iter().collect();
+    let decimal_places_map: HashMap<u32, u8> =
+        [(1, 0), (10, 1), (100, 2), (1000, 3)].into_iter().collect();
     let segment_a: HashMap<u8, &'static str> = crate::constants::segment_a_reverse();
-    let autopilot_mode_by_low: HashMap<u8, &str> = crate::constants::autopilot_mode_by_low_reverse();
+    let autopilot_mode_by_low: HashMap<u8, &str> =
+        crate::constants::autopilot_mode_by_low_reverse();
 
-    let divisor = divisor_map.get(&(format_byte >> 6 & 0b11)).copied().unwrap_or(1);
+    let divisor = divisor_map
+        .get(&(format_byte >> 6 & 0b11))
+        .copied()
+        .unwrap_or(1);
     let decimal_places = decimal_places_map.get(&divisor).copied().unwrap_or(0);
     let format_bits = format_byte & 0b1111;
 
@@ -305,6 +315,7 @@ pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]
 
     let mut layout: Option<String> = None;
     let mut value: Option<f64> = None;
+    #[allow(unused_assignments)]
     let mut display_text: Option<String> = None;
 
     match format_bits {
@@ -369,7 +380,10 @@ pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]
             let unsigned = data_bytes[1] as i32;
             let sign = sign_from_layout(layout.as_deref());
             value = Some(sign as f64 * unsigned as f64 / divisor as f64);
-            display_text = Some(display_from_layout(layout.as_deref(), &format!("{:.1$}", value.unwrap(), decimal_places as usize)));
+            display_text = Some(display_from_layout(
+                layout.as_deref(),
+                &format!("{:.1$}", value.unwrap(), decimal_places as usize),
+            ));
         }
         // Format 0x04: 32-bit unsigned with divisor
         0x04 => {
@@ -381,7 +395,8 @@ pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]
                     layout: None,
                 };
             }
-            let unsigned = u32::from_be_bytes([data_bytes[1], data_bytes[2], data_bytes[3], data_bytes[3]]);
+            let unsigned =
+                u32::from_be_bytes([data_bytes[1], data_bytes[2], data_bytes[3], data_bytes[3]]);
             value = Some(unsigned as f64 / divisor as f64);
             display_text = Some(format!("{:.1$}", value.unwrap(), decimal_places as usize));
         }
@@ -411,8 +426,14 @@ pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]
                     layout: None,
                 };
             }
-            let segment_b: HashMap<u8, &str> = crate::constants::SEGMENT_B.iter().cloned().collect();
-            display_text = Some(data_bytes.iter().map(|b| segment_b.get(b).map(|s| *s).unwrap_or("TBC")).collect::<String>());
+            let segment_b: HashMap<u8, &str> =
+                crate::constants::SEGMENT_B.iter().cloned().collect();
+            display_text = Some(
+                data_bytes
+                    .iter()
+                    .map(|b| segment_b.get(b).copied().unwrap_or("TBC"))
+                    .collect::<String>(),
+            );
         }
         // Format 0x07: 32-bit with layout symbol
         0x07 => {
@@ -429,7 +450,10 @@ pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]
             let unsigned = ((msb as u16) << 8) | (data_bytes[3] as u16);
             let sign = sign_from_layout(layout.as_deref());
             value = Some(sign as f64 * unsigned as f64 / divisor as f64);
-            display_text = Some(display_from_layout(layout.as_deref(), &format!("{:.1$}", value.unwrap(), decimal_places as usize)));
+            display_text = Some(display_from_layout(
+                layout.as_deref(),
+                &format!("{:.1$}", value.unwrap(), decimal_places as usize),
+            ));
         }
         // Format 0x08: 16-bit with layout symbol
         0x08 => {
@@ -445,7 +469,10 @@ pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]
             layout = segment_a.get(&segment_code).map(|s| s.to_string());
             let unsigned = (((data_bytes[0] & 0x01) as u16) << 8) | (data_bytes[1] as u16);
             value = Some(unsigned as f64 / divisor as f64);
-            display_text = Some(display_from_layout(layout.as_deref(), &format!("{:.1$}", value.unwrap(), decimal_places as usize)));
+            display_text = Some(display_from_layout(
+                layout.as_deref(),
+                &format!("{:.1$}", value.unwrap(), decimal_places as usize),
+            ));
         }
         // Format 0x0A: Two 16-bit values (e.g., TWD)
         0x0A => {

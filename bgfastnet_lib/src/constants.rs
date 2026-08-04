@@ -15,7 +15,10 @@ pub const ADDRESS_LOOKUP: &[(&str, u8)] = &[
     ("Expansion Unit", 0x0D),
     ("Expansion Unit", 0x0E),
     ("Expansion Unit", 0x0F),
-    ("Halcyon 2000 Compass (Directly Connected to FastNet Bus)", 0x10),
+    (
+        "Halcyon 2000 Compass (Directly Connected to FastNet Bus)",
+        0x10,
+    ),
     ("Halcyon Gyro-Stabilised Compass (via ACP)", 0x11),
     ("Halcyon Gyro-Stabilised Compass (via Pilot ACP)", 0x12),
     ("FFD (20)", 0x20),
@@ -141,7 +144,12 @@ pub fn address_lookup_reverse() -> HashMap<u8, &'static str> {
 pub const IGNORED_COMMANDS: &[u8] = &[0x0C];
 
 /// Backlight levels
-pub const BACKLIGHT_LEVELS: &[(u8, &str)] = &[(0x00, "Off"), (0x01, "Low"), (0x02, "Medium"), (0x04, "High")];
+pub const BACKLIGHT_LEVELS: &[(u8, &str)] = &[
+    (0x00, "Off"),
+    (0x01, "Low"),
+    (0x02, "Medium"),
+    (0x04, "High"),
+];
 
 /// Command lookup table
 pub const COMMAND_LOOKUP: &[(&str, u8)] = &[
@@ -280,18 +288,28 @@ pub fn channel_lookup_reverse() -> HashMap<u8, &'static str> {
 }
 
 /// Segment A lookup for layout symbols
-pub const SEGMENT_A: &[(u8, &'static str)] = &[
+pub const SEGMENT_A: &[(u8, &str)] = &[
     (0x66, "°M"),
-    (0x28, "[data]="), (0xa8, "=[data]"),
-    (0x20, "[data]-"), (0xa0, "-[data]"),
-    (0x8c, "=[data]"), (0x0c, "[data]="),
-    (0xf3, "H[data]"), (0x73, "[data]H"),
-    (0x00, ""), (0x80, ""),
-    (0xbb, "d[data]"), (0x99, "u[data]"),
-    (0x58, "[data]L"), (0xd8, "L[data]"),
-    (0x32, "[data]z"), (0x61, "z[data]"),
-    (0x5c, "[data]°C"), (0x74, "[data]°F"),
-    (0x01, "TBC"), (0x54, "TBC"),
+    (0x28, "[data]="),
+    (0xa8, "=[data]"),
+    (0x20, "[data]-"),
+    (0xa0, "-[data]"),
+    (0x8c, "=[data]"),
+    (0x0c, "[data]="),
+    (0xf3, "H[data]"),
+    (0x73, "[data]H"),
+    (0x00, ""),
+    (0x80, ""),
+    (0xbb, "d[data]"),
+    (0x99, "u[data]"),
+    (0x58, "[data]L"),
+    (0xd8, "L[data]"),
+    (0x32, "[data]z"),
+    (0x61, "z[data]"),
+    (0x5c, "[data]°C"),
+    (0x74, "[data]°F"),
+    (0x01, "TBC"),
+    (0x54, "TBC"),
 ];
 
 /// Reverse segment A lookup
@@ -301,28 +319,50 @@ pub fn segment_a_reverse() -> HashMap<u8, &'static str> {
 
 /// Segment B lookup for 7-segment display
 pub const SEGMENT_B: &[(u8, &str)] = &[
-    (0xBE, "O"), (0xE8, "F"), (0x62, "n"),
-    (0x72, "o"), (0x40, "-"), (0x00, " "),
-    (0x06, "1"), (0xFA, "6"), (0x0E, "7"), (0xFE, "8"),
-    (0xDA, "2"), (0xDE, "3"), (0xC6, "4"),
+    (0xBE, "O"),
+    (0xE8, "F"),
+    (0x62, "n"),
+    (0x72, "o"),
+    (0x40, "-"),
+    (0x00, " "),
+    (0x06, "1"),
+    (0xFA, "6"),
+    (0x0E, "7"),
+    (0xFE, "8"),
+    (0xDA, "2"),
+    (0xDE, "3"),
+    (0xC6, "4"),
     (0xB8, "C"),
 ];
 
 /// Autopilot mode by low byte
 pub const AUTOPILOT_MODE_BY_LOW: &[(u8, &str)] = &[
-    (0x01, "Compass"), (0x02, "Power"), (0x04, "Wind"), (0x13, "NMEA WP"),
+    (0x01, "Compass"),
+    (0x02, "Power"),
+    (0x04, "Wind"),
+    (0x13, "NMEA WP"),
 ];
 
 /// Reverse autopilot mode lookup
 pub fn autopilot_mode_by_low_reverse() -> HashMap<u8, &'static str> {
-    AUTOPILOT_MODE_BY_LOW.iter().map(|(k, v)| (*k, *v)).collect()
+    AUTOPILOT_MODE_BY_LOW
+        .iter()
+        .map(|(k, v)| (*k, *v))
+        .collect()
 }
 
 /// Format size map: format_byte & 0x0F -> data length
 pub const FORMAT_SIZE_MAP: &[(u8, usize)] = &[
-    (0x00, 4), (0x01, 2), (0x02, 2), (0x03, 2),
-    (0x04, 4), (0x05, 4), (0x06, 4), (0x07, 4),
-    (0x08, 2), (0x0A, 4),
+    (0x00, 4),
+    (0x01, 2),
+    (0x02, 2),
+    (0x03, 2),
+    (0x04, 4),
+    (0x05, 4),
+    (0x06, 4),
+    (0x07, 4),
+    (0x08, 2),
+    (0x0A, 4),
 ];
 
 /// Reverse format size map

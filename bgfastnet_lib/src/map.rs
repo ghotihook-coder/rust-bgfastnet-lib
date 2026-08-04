@@ -52,13 +52,37 @@ const STANDARD: &[(&str, u8, Transform)] = &[
     ("navigation.courseRhumbline.nextPoint.distance", 0xE7, nm),
     ("navigation.courseGreatCircle.nextPoint.distance", 0xE8, nm),
     ("navigation.courseGreatCircle.nextPoint.distance", 0xFA, nm),
-    ("navigation.courseRhumbline.nextPoint.bearingTrue", 0xE3, deg),
-    ("navigation.courseRhumbline.nextPoint.bearingMagnetic", 0xE4, deg),
-    ("navigation.courseGreatCircle.nextPoint.bearingTrue", 0xE5, deg),
-    ("navigation.courseGreatCircle.nextPoint.bearingMagnetic", 0xE6, deg),
+    (
+        "navigation.courseRhumbline.nextPoint.bearingTrue",
+        0xE3,
+        deg,
+    ),
+    (
+        "navigation.courseRhumbline.nextPoint.bearingMagnetic",
+        0xE4,
+        deg,
+    ),
+    (
+        "navigation.courseGreatCircle.nextPoint.bearingTrue",
+        0xE5,
+        deg,
+    ),
+    (
+        "navigation.courseGreatCircle.nextPoint.bearingMagnetic",
+        0xE6,
+        deg,
+    ),
     ("navigation.courseGreatCircle.bearingTrackTrue", 0xE0, deg),
-    ("navigation.courseGreatCircle.bearingTrackMagnetic", 0xE1, deg),
-    ("navigation.courseGreatCircle.nextPoint.velocityMadeGood", 0xEC, kn),
+    (
+        "navigation.courseGreatCircle.bearingTrackMagnetic",
+        0xE1,
+        deg,
+    ),
+    (
+        "navigation.courseGreatCircle.nextPoint.velocityMadeGood",
+        0xEC,
+        kn,
+    ),
     ("navigation.courseGreatCircle.nextPoint.timeToGo", 0xED, id),
     ("navigation.courseGreatCircle.crossTrackError", 0xEE, nm),
     ("navigation.racing.layline.distance", 0xE2, nm),
@@ -85,9 +109,24 @@ const DEPTH: &[(u8, Transform)] = &[(0xC1, id), (0xC2, |v| v * FT_M), (0xC3, |v|
 const DEPTH_PATH: &str = "environment.depth.belowTransducer";
 
 const ROUTED: &[(&str, &str, u8, Transform)] = &[
-    ("navigation.headingMagnetic", "navigation.headingTrue", 0x49, deg),
-    ("environment.wind.directionMagnetic", "environment.wind.directionTrue", 0x6D, deg),
-    ("environment.current.setMagnetic", "environment.current.setTrue", 0x84, deg),
+    (
+        "navigation.headingMagnetic",
+        "navigation.headingTrue",
+        0x49,
+        deg,
+    ),
+    (
+        "environment.wind.directionMagnetic",
+        "environment.wind.directionTrue",
+        0x6D,
+        deg,
+    ),
+    (
+        "environment.current.setMagnetic",
+        "environment.current.setTrue",
+        0x84,
+        deg,
+    ),
 ];
 
 const VENDOR: &[(&str, u8, Transform)] = &[
@@ -153,9 +192,9 @@ pub fn project(decoded_frame: &crate::decode::DecodedFrame) -> HashMap<String, f
     }
 
     let mut depth_seen: HashMap<u8, f64> = HashMap::new();
-    for (_channel_name, entry) in values {
+    for entry in values.values() {
         let cid = parse_channel_id(&entry.channel_id);
-        
+
         if let Some(cid) = cid {
             if DROP.contains(&cid) || COLLAPSED.contains(&cid) {
                 continue;
@@ -185,9 +224,14 @@ pub fn project(decoded_frame: &crate::decode::DecodedFrame) -> HashMap<String, f
                 continue;
             }
 
-            if let Some((mag_path, true_path, _, tf)) = ROUTED.iter().find(|(_, _, c, _)| *c == cid) {
+            if let Some((mag_path, true_path, _, tf)) = ROUTED.iter().find(|(_, _, c, _)| *c == cid)
+            {
                 let layout = entry.layout.as_deref();
-                let path = if layout == Some(MAGNETIC_LAYOUT) { mag_path } else { true_path };
+                let path = if layout == Some(MAGNETIC_LAYOUT) {
+                    mag_path
+                } else {
+                    true_path
+                };
                 if let Some(v) = value {
                     out.insert(path.to_string(), tf(v));
                 }
@@ -230,7 +274,9 @@ pub fn project(decoded_frame: &crate::decode::DecodedFrame) -> HashMap<String, f
 }
 
 fn parse_channel_id(channel_id: &str) -> Option<u8> {
-    let raw = channel_id.strip_prefix("0x").or(channel_id.strip_prefix("0X"));
+    let raw = channel_id
+        .strip_prefix("0x")
+        .or(channel_id.strip_prefix("0X"));
     raw.and_then(|s| u8::from_str_radix(s, 16).ok())
 }
 
@@ -238,28 +284,31 @@ fn ap_state(value: Option<f64>) -> Option<&'static str> {
     let raw = value?.round() as i32;
     let high = (raw >> 8) & 0xFF;
     let low = (raw & 0xFF) as u8;
-    
+
     if high == 0x50 {
         return Some("standby");
     }
     if high == 0x51 || high == 0x59 {
-        let autopilot_mode_by_low: HashMap<u8, &str> = crate::constants::AUTOPILOT_MODE_BY_LOW.iter().cloned().collect();
-        return autopilot_mode_by_low.get(&low).map(|s| *s);
+        let autopilot_mode_by_low: HashMap<u8, &str> = crate::constants::AUTOPILOT_MODE_BY_LOW
+            .iter()
+            .cloned()
+            .collect();
+        return autopilot_mode_by_low.get(&low).copied();
     }
     None
 }
 
 pub fn parse_position(ascii_text: &str) -> Option<f64> {
     let ascii_text = ascii_text.trim();
-    
+
     let lat_n = ascii_text.find('N').unwrap_or(0);
     let lat_s = ascii_text.find('S').unwrap_or(0);
     let lat_i = std::cmp::max(lat_n, lat_s);
-    
+
     let lon_e = ascii_text.find('E').unwrap_or(0);
     let lon_w = ascii_text.find('W').unwrap_or(0);
     let lon_i = std::cmp::max(lon_e, lon_w);
-    
+
     if lat_i == 0 || lon_i == 0 || lat_i >= ascii_text.len() - 1 || lon_i <= lat_i {
         return None;
     }
@@ -330,7 +379,10 @@ pub fn unit_for(path: &str) -> &'static str {
 }
 
 pub fn channel_map() -> Vec<ChannelInfo> {
-    let channel_lookup: HashMap<u8, &str> = crate::constants::CHANNEL_LOOKUP.iter().map(|(s, v)| (*v, *s)).collect();
+    let channel_lookup: HashMap<u8, &str> = crate::constants::CHANNEL_LOOKUP
+        .iter()
+        .map(|(s, v)| (*v, *s))
+        .collect();
     let mut out = Vec::new();
 
     for (cid, name) in channel_lookup.iter() {
@@ -343,9 +395,11 @@ pub fn channel_map() -> Vec<ChannelInfo> {
 
 fn channel_disposition(cid: u8, name: &str) -> ChannelInfo {
     if ROUTED.iter().any(|(_, _, c, _)| *c == cid) {
-        let stem = ROUTED.iter().find(|(_, _, c, _)| *c == cid).map(|(m, _, _, _)| {
-            m.strip_suffix("Magnetic").unwrap_or(m)
-        }).unwrap_or("");
+        let stem = ROUTED
+            .iter()
+            .find(|(_, _, c, _)| *c == cid)
+            .map(|(m, _, _, _)| m.strip_suffix("Magnetic").unwrap_or(m))
+            .unwrap_or("");
         return ChannelInfo {
             name: name.to_string(),
             path: format!("{}{{Magnetic,True}}", stem),
@@ -397,7 +451,15 @@ fn channel_disposition(cid: u8, name: &str) -> ChannelInfo {
     }
 
     if COLLAPSED.contains(&cid) {
-        let collapsed: HashMap<u8, &str> = [(0x1C, "environment.outside.temperature"), (0x1E, "environment.water.temperature"), (0x4D, "environment.wind.speedApparent"), (0x55, "environment.wind.speedTrue"), (0x65, "bandg.navigation.speedThroughWaterAverage")].into_iter().collect();
+        let collapsed: HashMap<u8, &str> = [
+            (0x1C, "environment.outside.temperature"),
+            (0x1E, "environment.water.temperature"),
+            (0x4D, "environment.wind.speedApparent"),
+            (0x55, "environment.wind.speedTrue"),
+            (0x65, "bandg.navigation.speedThroughWaterAverage"),
+        ]
+        .into_iter()
+        .collect();
         return ChannelInfo {
             name: name.to_string(),
             path: format!("→ {}", collapsed.get(&cid).unwrap()),
@@ -434,19 +496,27 @@ mod tests {
             from_address: "Normal CPU (Wind Board in H2000)".to_string(),
             command: "Broadcast".to_string(),
             values: [
-                ("Apparent Wind Speed (m/s)".to_string(), crate::decode::DecodedValue {
-                    channel_id: "0x4F".to_string(),
-                    value: Some(3.8),
-                    display_text: Some("3.8".to_string()),
-                    layout: None,
-                }),
-                ("Apparent Wind Angle".to_string(), crate::decode::DecodedValue {
-                    channel_id: "0x51".to_string(),
-                    value: Some(45.0),
-                    display_text: Some("45.0".to_string()),
-                    layout: None,
-                }),
-            ].into_iter().collect(),
+                (
+                    "Apparent Wind Speed (m/s)".to_string(),
+                    crate::decode::DecodedValue {
+                        channel_id: "0x4F".to_string(),
+                        value: Some(3.8),
+                        display_text: Some("3.8".to_string()),
+                        layout: None,
+                    },
+                ),
+                (
+                    "Apparent Wind Angle".to_string(),
+                    crate::decode::DecodedValue {
+                        channel_id: "0x51".to_string(),
+                        value: Some(45.0),
+                        display_text: Some("45.0".to_string()),
+                        layout: None,
+                    },
+                ),
+            ]
+            .into_iter()
+            .collect(),
         };
 
         let result = project(&decoded_frame);
@@ -472,14 +542,17 @@ mod tests {
             to_address: "Entire System".to_string(),
             from_address: "Pilot FFD (50)".to_string(),
             command: "Broadcast".to_string(),
-            values: [
-                ("Autopilot Mode".to_string(), crate::decode::DecodedValue {
+            values: [(
+                "Autopilot Mode".to_string(),
+                crate::decode::DecodedValue {
                     channel_id: "0xB5".to_string(),
                     value: Some(20480.0), // 0x5000 = standby
                     display_text: Some("Standby".to_string()),
                     layout: None,
-                }),
-            ].into_iter().collect(),
+                },
+            )]
+            .into_iter()
+            .collect(),
         };
 
         let result = project(&decoded_frame);
@@ -493,14 +566,17 @@ mod tests {
             to_address: "Entire System".to_string(),
             from_address: "Normal CPU (Wind Board in H2000)".to_string(),
             command: "Broadcast".to_string(),
-            values: [
-                ("True Wind Direction".to_string(), crate::decode::DecodedValue {
+            values: [(
+                "True Wind Direction".to_string(),
+                crate::decode::DecodedValue {
                     channel_id: "0x6D".to_string(),
                     value: Some(180.0),
                     display_text: Some("180.0°M".to_string()),
                     layout: Some("°M".to_string()),
-                }),
-            ].into_iter().collect(),
+                },
+            )]
+            .into_iter()
+            .collect(),
         };
 
         let result = project(&decoded_frame);
@@ -515,14 +591,17 @@ mod tests {
             to_address: "Entire System".to_string(),
             from_address: "Normal CPU (Wind Board in H2000)".to_string(),
             command: "Broadcast".to_string(),
-            values: [
-                ("True Wind Direction".to_string(), crate::decode::DecodedValue {
+            values: [(
+                "True Wind Direction".to_string(),
+                crate::decode::DecodedValue {
                     channel_id: "0x6D".to_string(),
                     value: Some(180.0),
                     display_text: Some("180.0°T".to_string()),
                     layout: Some("°T".to_string()),
-                }),
-            ].into_iter().collect(),
+                },
+            )]
+            .into_iter()
+            .collect(),
         };
 
         let result = project(&decoded_frame);
@@ -538,19 +617,27 @@ mod tests {
             from_address: "Normal CPU (Depth Board in H2000)".to_string(),
             command: "Broadcast".to_string(),
             values: [
-                ("Depth (Meters)".to_string(), crate::decode::DecodedValue {
-                    channel_id: "0xC1".to_string(),
-                    value: Some(7.3),
-                    display_text: Some("7.3".to_string()),
-                    layout: None,
-                }),
-                ("Depth (Feet)".to_string(), crate::decode::DecodedValue {
-                    channel_id: "0xC2".to_string(),
-                    value: Some(24.1),
-                    display_text: Some("24.1".to_string()),
-                    layout: None,
-                }),
-            ].into_iter().collect(),
+                (
+                    "Depth (Meters)".to_string(),
+                    crate::decode::DecodedValue {
+                        channel_id: "0xC1".to_string(),
+                        value: Some(7.3),
+                        display_text: Some("7.3".to_string()),
+                        layout: None,
+                    },
+                ),
+                (
+                    "Depth (Feet)".to_string(),
+                    crate::decode::DecodedValue {
+                        channel_id: "0xC2".to_string(),
+                        value: Some(24.1),
+                        display_text: Some("24.1".to_string()),
+                        layout: None,
+                    },
+                ),
+            ]
+            .into_iter()
+            .collect(),
         };
 
         let result = project(&decoded_frame);
@@ -565,14 +652,17 @@ mod tests {
             to_address: "Entire System".to_string(),
             from_address: "Normal CPU (Wind Board in H2000)".to_string(),
             command: "Broadcast".to_string(),
-            values: [
-                ("Upwash".to_string(), crate::decode::DecodedValue {
+            values: [(
+                "Upwash".to_string(),
+                crate::decode::DecodedValue {
                     channel_id: "0x85".to_string(),
                     value: Some(5.0),
                     display_text: Some("5.0".to_string()),
                     layout: None,
-                }),
-            ].into_iter().collect(),
+                },
+            )]
+            .into_iter()
+            .collect(),
         };
 
         let result = project(&decoded_frame);
@@ -586,14 +676,17 @@ mod tests {
             to_address: "Entire System".to_string(),
             from_address: "Normal CPU (Wind Board in H2000)".to_string(),
             command: "Broadcast".to_string(),
-            values: [
-                ("Linear 5".to_string(), crate::decode::DecodedValue {
+            values: [(
+                "Linear 5".to_string(),
+                crate::decode::DecodedValue {
                     channel_id: "0x0C".to_string(),
                     value: Some(123.0),
                     display_text: Some("123".to_string()),
                     layout: None,
-                }),
-            ].into_iter().collect(),
+                },
+            )]
+            .into_iter()
+            .collect(),
         };
 
         let result = project(&decoded_frame);
