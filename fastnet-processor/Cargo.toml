@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2021"
 description = "A CLI tool for processing FastNet protocol data from B&G instruments"
 license = "MIT"
-repository = "https://github.com/ghotihook/rust-bgfastnet-lib"
+repository = "https://github.com/ghotihook/rust-bgfastnet"
 readme = "README.md"
 authors = ["ghotihook <github.com/ghotihook>"]
 
 [dependencies]
 bgfastnet_lib = { path = "../bgfastnet_lib" }
+serial = "0.6"
