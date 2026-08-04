@@ -10,3 +10,4 @@ authors = ["ghotihook <github.com/ghotihook>"]
 
 [dependencies]
 bgfastnet_lib = { path = "../bgfastnet_lib" }
+serial = "0.6"

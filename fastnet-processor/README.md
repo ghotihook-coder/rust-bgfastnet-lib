@@ -23,8 +23,14 @@ fastnet-processor --file data.hex
 ### From serial port
 
 ```bash
-fastnet-processor --serial /dev/ttyUSB0 --baud 38400
+fastnet-processor /dev/ttyUSB0
 ```
+
+The serial port uses non-standard configuration:
+- Baud rate: 28800
+- Data bits: 8
+- Stop bits: 2
+- Parity: Odd
 
 ### Output format
 
