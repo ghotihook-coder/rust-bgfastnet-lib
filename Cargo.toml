@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "bgfastnet_lib",
+    "fastnet-processor",
+]
+resolver = "2"

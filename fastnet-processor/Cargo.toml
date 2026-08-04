@@ -1,0 +1,12 @@
+[package]
+name = "fastnet-processor"
+version = "0.1.0"
+edition = "2021"
+description = "A CLI tool for processing FastNet protocol data from B&G instruments"
+license = "MIT"
+repository = "https://github.com/ghotihook/rust-bgfastnet-lib"
+readme = "README.md"
+authors = ["ghotihook <github.com/ghotihook>"]
+
+[dependencies]
+bgfastnet_lib = { path = "../bgfastnet_lib" }

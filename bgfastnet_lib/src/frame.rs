@@ -1,5 +1,5 @@
-use crate::decode::{decode_frame, decode_ascii_frame, decode_light_frame};
 use crate::constants;
+use crate::decode::{decode_ascii_frame, decode_frame, decode_light_frame};
 use crate::map;
 
 #[derive(Debug, Clone)]
@@ -104,7 +104,8 @@ impl FrameBuffer {
         let values = if self.project {
             map::project(&decoded_frame)
         } else {
-            decoded_frame.values
+            decoded_frame
+                .values
                 .iter()
                 .filter_map(|(k, v)| v.value.map(|val| (k.clone(), val)))
                 .collect()
@@ -150,34 +151,34 @@ mod tests {
     #[test]
     fn test_frame_buffer_basic() {
         let mut fb = FrameBuffer::new_default();
-        
+
         // Test frame: ff 05 14 01 e7 8d 81 05 26 3b 31 01 fa 34 47 00 f3 00 cc 9b 47 00 a0 00 09 9b
         let frame = vec![
-            0xFF, 0x05, 0x14, 0x01, 0xE7,
-            0x8D, 0x81, 0x05, 0x26, 0x3B, 0x31, 0x01, 0xFA, 0x34, 0x47, 0x00, 0xF3, 0x00, 0xCC, 0x9B, 0x47, 0x00, 0xA0, 0x00, 0x09,
-            0x9B,
+            0xFF, 0x05, 0x14, 0x01, 0xE7, 0x8D, 0x81, 0x05, 0x26, 0x3B, 0x31, 0x01, 0xFA, 0x34,
+            0x47, 0x00, 0xF3, 0x00, 0xCC, 0x9B, 0x47, 0x00, 0xA0, 0x00, 0x09, 0x9B,
         ];
-        
+
         fb.add_to_buffer(&frame);
         fb.get_complete_frames();
-        
+
         assert_eq!(fb.frame_queue().len(), 1);
-        assert!(fb.frame_queue()[0].values.contains_key("navigation.attitude.roll"));
+        assert!(fb.frame_queue()[0]
+            .values
+            .contains_key("navigation.attitude.roll"));
     }
 
     #[test]
     fn test_frame_buffer_project_false() {
         let mut fb = FrameBuffer::new(8192, 1000, false);
-        
+
         let frame = vec![
-            0xFF, 0x05, 0x14, 0x01, 0xE7,
-            0x8D, 0x81, 0x05, 0x26, 0x3B, 0x31, 0x01, 0xFA, 0x34, 0x47, 0x00, 0xF3, 0x00, 0xCC, 0x9B, 0x47, 0x00, 0xA0, 0x00, 0x09,
-            0x9B,
+            0xFF, 0x05, 0x14, 0x01, 0xE7, 0x8D, 0x81, 0x05, 0x26, 0x3B, 0x31, 0x01, 0xFA, 0x34,
+            0x47, 0x00, 0xF3, 0x00, 0xCC, 0x9B, 0x47, 0x00, 0xA0, 0x00, 0x09, 0x9B,
         ];
-        
+
         fb.add_to_buffer(&frame);
         fb.get_complete_frames();
-        
+
         assert_eq!(fb.frame_queue().len(), 1);
     }
 }

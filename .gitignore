@@ -74,3 +74,6 @@ Dockerfile
 # Logs
 *.log
 logs/
+
+# Example data files (should be copied from temp/ for development)
+temp/
