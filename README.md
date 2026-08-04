@@ -58,11 +58,11 @@ while let Some(frame) = fb.frame_queue_pop() {
 ### As a CLI tool
 
 ```bash
-# From a hex file
-fastnet-processor --file data.hex
+# From a hex-encoded file
+fastnet-processor data.hex
 
-# From serial port
-fastnet-processor --serial /dev/ttyUSB0 --baud 38400
+# From a serial port (fixed at 28800 8O2)
+fastnet-processor /dev/ttyUSB0
 ```
 
 ## Building

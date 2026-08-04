@@ -396,7 +396,7 @@ pub fn decode_format_and_data(channel_id: u8, format_byte: u8, data_bytes: &[u8]
                 };
             }
             let unsigned =
-                u32::from_be_bytes([data_bytes[1], data_bytes[2], data_bytes[3], data_bytes[3]]);
+                u32::from_be_bytes([data_bytes[0], data_bytes[1], data_bytes[2], data_bytes[3]]);
             value = Some(unsigned as f64 / divisor as f64);
             display_text = Some(format!("{:.1$}", value.unwrap(), decimal_places as usize));
         }

@@ -1,6 +1,7 @@
 use crate::constants;
 use crate::decode::{decode_ascii_frame, decode_frame, decode_light_frame};
 use crate::map;
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct DecodedFrame {
@@ -13,7 +14,8 @@ pub struct DecodedFrame {
 pub struct FrameBuffer {
     buffer: Vec<u8>,
     max_buffer_size: usize,
-    frame_queue: Vec<DecodedFrame>,
+    max_queue_size: usize,
+    frame_queue: VecDeque<DecodedFrame>,
     project: bool,
 }
 
@@ -22,7 +24,8 @@ impl FrameBuffer {
         FrameBuffer {
             buffer: Vec::with_capacity(max_buffer_size),
             max_buffer_size,
-            frame_queue: Vec::with_capacity(max_queue_size),
+            max_queue_size,
+            frame_queue: VecDeque::with_capacity(max_queue_size),
             project,
         }
     }
@@ -115,11 +118,11 @@ impl FrameBuffer {
             return;
         }
 
-        if self.frame_queue.len() >= self.max_buffer_size {
-            self.frame_queue.remove(0);
+        if self.frame_queue.len() >= self.max_queue_size {
+            self.frame_queue.pop_front();
         }
 
-        self.frame_queue.push(DecodedFrame {
+        self.frame_queue.push_back(DecodedFrame {
             to_address: decoded_frame.to_address,
             from_address: decoded_frame.from_address,
             command: decoded_frame.command,
@@ -127,12 +130,12 @@ impl FrameBuffer {
         });
     }
 
-    pub fn frame_queue(&self) -> &[DecodedFrame] {
+    pub fn frame_queue(&self) -> &VecDeque<DecodedFrame> {
         &self.frame_queue
     }
 
     pub fn frame_queue_pop(&mut self) -> Option<DecodedFrame> {
-        self.frame_queue.pop()
+        self.frame_queue.pop_front()
     }
 
     pub fn get_buffer_size(&self) -> usize {

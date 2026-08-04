@@ -17,7 +17,7 @@ cargo install --path .
 ### From a file
 
 ```bash
-fastnet-processor --file data.hex
+fastnet-processor data.hex
 ```
 
 ### From serial port

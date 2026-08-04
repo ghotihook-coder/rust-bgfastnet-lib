@@ -1,5 +1,5 @@
 use bgfastnet_lib::FrameBuffer;
-use serial::{Port, SerialPort, SerialPortSettings};
+use serialport::{DataBits, Parity, StopBits};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
 use std::path::Path;
@@ -45,17 +45,13 @@ fn read_from_file(path: &str) {
 }
 
 fn read_from_serial(port: &str) {
-    let mut settings = SerialPortSettings::default();
-    settings.baud_rate = 28800;
-    settings.data_bits = serial::DataBits::Eight;
-    settings.stop_bits = serial::StopBits::Two;
-    settings.parity = serial::Parity::Odd;
-    settings.timeout = Duration::from_secs(1);
-
-    let mut serial = serial::open(port).expect("Failed to open serial port");
-    serial
-        .set_settings(&settings)
-        .expect("Failed to set serial port settings");
+    let mut serial = serialport::new(port, 28800)
+        .data_bits(DataBits::Eight)
+        .stop_bits(StopBits::Two)
+        .parity(Parity::Odd)
+        .timeout(Duration::from_secs(1))
+        .open()
+        .expect("Failed to open serial port");
 
     let mut fb = FrameBuffer::new_default();
     let mut buffer = [0u8; 1024];
@@ -67,6 +63,7 @@ fn read_from_serial(port: &str) {
                 fb.add_to_buffer(&buffer[..n]);
                 process_frame_queue(&mut fb);
             }
+            Err(e) if e.kind() == std::io::ErrorKind::TimedOut => continue,
             Err(e) => {
                 eprintln!("Error reading serial port: {}", e);
                 std::process::exit(1);
