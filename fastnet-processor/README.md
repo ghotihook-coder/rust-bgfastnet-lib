@@ -36,7 +36,7 @@ environment.wind.speedApparent = 5.7
 
 ## Examples
 
-See the `examples/` directory for sample FastNet data files.
+See `test-fastnet-data.txt` in this directory for sample FastNet data.
 
 ## License
 

@@ -1,4 +1,4 @@
-# rust-bgfastnet-lib
+# rust-bgfastnet
 
 A Rust workspace for decoding the FastNet protocol used by B&G Hydra / H2000 marine instruments.
 
@@ -23,12 +23,12 @@ FastNet is B&G's proprietary marine instrument protocol used by their Hydra / H2
 ## Workspace Structure
 
 ```
-rust-bgfastnet-lib/
+rust-bgfastnet/
 ├── bgfastnet_lib/          # Library crate
 │   └── src/
 ├── fastnet-processor/      # CLI tool
 │   └── src/
-├── examples/               # Sample FastNet data
+│       └── test-fastnet-data.txt
 └── README.md              # This file
 ```
 
