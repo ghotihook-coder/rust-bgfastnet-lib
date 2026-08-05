@@ -8,6 +8,7 @@ This project provides tools for working with the FastNet protocol:
 
 - **bgfastnet_lib**: Library crate for decoding FastNet protocol frames
 - **fastnet-processor**: CLI tool for processing FastNet data from files or serial ports
+- **fastnet2n2k**: Converts FastNet data to NMEA2000 PGNs for Signal K and marine networks
 
 ## What is FastNet?
 
@@ -19,6 +20,7 @@ FastNet is B&G's proprietary marine instrument protocol used by their Hydra / H2
 - Convert to Signal K paths with SI unit conversion
 - Support for serial port and file input
 - Comprehensive test coverage
+- NMEA2000 PGN mapping for marine network integration
 
 ## Workspace Structure
 
@@ -29,6 +31,8 @@ rust-bgfastnet/
 ├── fastnet-processor/      # CLI tool
 │   └── src/
 │       └── test-fastnet-data.txt
+├── fastnet2n2k/            # FastNet to NMEA2000 converter
+│   └── src/
 └── README.md              # This file
 ```
 
@@ -74,7 +78,7 @@ cargo build --release
 ## Testing
 
 ```bash
-cargo test
+cargo test --package bgfastnet_lib --package fastnet2n2k
 ```
 
 ## License

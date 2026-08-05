@@ -33,5 +33,5 @@ pub use decode::{
     decode_ascii_frame, decode_frame, decode_light_frame, DecodedFrame, DecodedValue,
 };
 pub use frame::FrameBuffer;
-pub use map::{channel_map, project, unit_for, ChannelInfo};
+pub use map::{channel_lookup, channel_map, project, unit_for, ChannelInfo};
 pub use utils::calculate_checksum;

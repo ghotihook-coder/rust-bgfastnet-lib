@@ -2,5 +2,6 @@
 members = [
     "bgfastnet_lib",
     "fastnet-processor",
+    "fastnet2n2k",
 ]
 resolver = "2"

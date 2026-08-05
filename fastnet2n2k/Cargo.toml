@@ -1,0 +1,17 @@
+[package]
+name = "fastnet2n2k"
+version = "0.1.0"
+edition = "2021"
+description = "Convert Fastnet protocol to NMEA2000"
+license = "MIT"
+repository = "https://github.com/ghotihook/rust-bgfastnet"
+readme = "README.md"
+authors = ["ghotihook <github.com/ghotihook>"]
+
+[dependencies]
+bgfastnet_lib = { path = "../bgfastnet_lib" }
+serialport = { version = "4", default-features = false, features = [] }
+socketcan = "3"
+chrono = "0.4"
+log = "0.4"
+env_logger = "0.10"

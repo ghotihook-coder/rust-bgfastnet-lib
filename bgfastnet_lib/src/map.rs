@@ -393,7 +393,7 @@ pub fn channel_map() -> Vec<ChannelInfo> {
     out
 }
 
-fn channel_disposition(cid: u8, name: &str) -> ChannelInfo {
+pub fn channel_disposition(cid: u8, name: &str) -> ChannelInfo {
     if ROUTED.iter().any(|(_, _, c, _)| *c == cid) {
         let stem = ROUTED
             .iter()
@@ -689,7 +689,14 @@ mod tests {
             .collect(),
         };
 
-        let result = project(&decoded_frame);
-        assert!(result.contains_key("bandg.unknown.0x0C"));
+let result = project(&decoded_frame);
+    assert!(result.contains_key("bandg.unknown.0x0C"));
     }
+}
+
+/// Master lookup: channel_id -> ChannelInfo
+/// This is the authoritative mapping from B&G Fastnet channel IDs to Signal K paths.
+/// Derived from the projection maps (STANDARD/DEPTH/ROUTED/VENDOR/COLLAPSED/DROP).
+pub fn channel_lookup() -> Vec<ChannelInfo> {
+    crate::map::channel_map()
 }

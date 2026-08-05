@@ -44,6 +44,11 @@ environment.wind.speedApparent = 5.7
 
 See `test-fastnet-data.txt` in this directory for sample FastNet data.
 
+## Related Tools
+
+- **fastnet2n2k**: Converts FastNet data to NMEA2000 PGNs for marine networks
+- **bgfastnet_lib**: Library crate for decoding FastNet protocol frames
+
 ## License
 
 MIT

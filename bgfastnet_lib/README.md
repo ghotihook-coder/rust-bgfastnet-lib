@@ -30,6 +30,10 @@ while let Some(frame) = fb.frame_queue_pop() {
 }
 ```
 
+## NMEA2000 Mapping
+
+To convert Signal K paths to NMEA2000 PGNs, use the `fastnet2n2k` tool which provides comprehensive mapping for all available channels.
+
 ## Detailed Usage
 
 ### 1. Reading Raw Data
